@@ -1,3 +1,4 @@
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -51,6 +52,10 @@ data:
                 location = /40x.html {
             }
 
+            location /api/ {
+        	    proxy_pass http://backend:8080/;
+    	      }
+
             error_page 500 502 503 504 /50x.html;
                 location = /50x.html {
             }
@@ -68,7 +73,20 @@ metadata:
     app: frontend
     tier: web
     project: expense
- spec:
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+      tier: web
+      project: expense
+  template:
+    metadata:
+      labels:
+        app: frontend
+        tier: web
+        project: expense
+    spec:
       volumes:
       - name: nginx
         configMap:
@@ -95,6 +113,7 @@ metadata:
           mountPath: /etc/nginx/nginx.conf
           subPath: nginx.conf
           readOnly: true
+
 ---
 kind: Service
 apiVersion: v1
